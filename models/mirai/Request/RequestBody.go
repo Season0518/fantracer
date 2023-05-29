@@ -1,17 +1,22 @@
-package mirai
+package miraiRequest
 
 type Universial struct {
 	SessionKey string `url:"sessionKey"`
-	Target     string `url:"target"`
-	MemberIds  string `url:"memberIds"`
+	Target     int `url:"target"`
+	MemberIds  int `url:"memberIds"`
 }
 
 type Verify struct {
 	VerifyKey string `json:"verifyKey"`
-	Qq        int    `json:"qq"`
+	QQ        int    `json:"qq"`
 }
 
 type Bind struct {
 	SessionKey string `json:"sessionKey"`
 	QQ         int    `json:"qq"`
+}
+
+type Release struct {
+	SessionKey string `json:"sessionKey"`
+	QQ         int    `json:"qq"`	
 }

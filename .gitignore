@@ -6,3 +6,6 @@
 /out/
 /run/
 /debug-sandbox
+config.ini
+/.vscode
+.DS_Store
