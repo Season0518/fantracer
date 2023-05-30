@@ -7,6 +7,7 @@ import (
 	miraiResponse "fantracer/models/mirai/Response"
 	"fantracer/utils"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -16,6 +17,11 @@ import (
 func FetchGroupMembers(sessionKey string,group int,memberIds int) ([]models.Member,error) {
 	router := "/latestMemberList"
 
+	baseUrl,err := utils.ReadBaseUrl() 
+	if err != nil {
+		log.Panicln("baseUrl非法, 无法链接mirai-http服务")
+	}
+
 	requestBody := miraiRequest.Universial {
 		SessionKey: sessionKey,
 		Target: group,
@@ -23,7 +29,7 @@ func FetchGroupMembers(sessionKey string,group int,memberIds int) ([]models.Memb
 	}
 
 	// 构建 URL
-	url, err := url.Parse(utils.ReadBaseUrl()+router)
+	url, err := url.Parse(baseUrl+router)
 	if err != nil {
 		return []models.Member{},fmt.Errorf("url解析失败: %v", err)
 	}
@@ -38,8 +44,6 @@ func FetchGroupMembers(sessionKey string,group int,memberIds int) ([]models.Memb
 	
 	invaildParam := "memberIds=0"
 	requestUrl := strings.Replace(url.String(),invaildParam,"memberIds",-1)
-
-	fmt.Println(requestUrl)
 
 	response, err := http.Get(requestUrl)
 	if err != nil {

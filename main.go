@@ -1,9 +1,11 @@
 package main
 
-import (
-	"fantracer/test"
-)
+import "fantracer/console"
 
 func main(){
-	test.FetchFlow()
+	// console.
+	// test.FetchFlow()
+	console.FetchMemberList()
+	defer console.Conrs.Stop()
+	// return
 }

@@ -8,5 +8,5 @@ type Member struct {
     JoinTimestamp      int    `json:"joinTimestamp"`
     LastSpeakTimestamp int    `json:"lastSpeakTimestamp"`
     MuteTimeRemaining  int    `json:"muteTimeRemaining"`
-    Group              Group  `json:"group"`
+    Group              Group  `json:"group" xorm:"-"`
 }

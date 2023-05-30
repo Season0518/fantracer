@@ -7,11 +7,17 @@ import (
 	miraiResponse "fantracer/models/mirai/Response"
 	"fantracer/utils"
 	"fmt"
+	"log"
 	"net/http"
 )
 
 func VerifySession(verifyKey string,qq int) (string, error) {
 	router := "/verify"
+	
+	baseUrl,err := utils.ReadBaseUrl() 
+	if err != nil {
+		log.Panicln("baseUrl非法, 无法链接mirai-http服务")
+	}
 	
 	requestBody := miraiRequest.Verify {
 		VerifyKey: verifyKey,
@@ -25,7 +31,7 @@ func VerifySession(verifyKey string,qq int) (string, error) {
 	}
 
 	// 读取响应体
-	response,err := http.Post(utils.ReadBaseUrl()+router,"application/json", bytes.NewBuffer(jsonData))
+	response,err := http.Post(baseUrl+router,"application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", fmt.Errorf("获取SessionKey失败: %v",err)
 	}
@@ -49,6 +55,11 @@ func VerifySession(verifyKey string,qq int) (string, error) {
 func BindSession(sessionKey string,qq int) (string, error) {
 	router := "/bind"
 
+	baseUrl,err := utils.ReadBaseUrl() 
+	if err != nil {
+		log.Panicln("baseUrl非法, 无法链接mirai-http服务")
+	}
+
 	requestBody := miraiRequest.Bind {
 		SessionKey: sessionKey,
 		QQ: qq,
@@ -61,7 +72,7 @@ func BindSession(sessionKey string,qq int) (string, error) {
 	}
 
 	// 读取响应体
-	response,err := http.Post(utils.ReadBaseUrl()+router,"application/json", bytes.NewBuffer(jsonData))
+	response,err := http.Post(baseUrl+router,"application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", fmt.Errorf("获取SessionKey失败: %v",err)
 	}
@@ -85,6 +96,11 @@ func BindSession(sessionKey string,qq int) (string, error) {
 func ReleaseSession(sessionKey string,qq int) (string, error) {
 	router := "/release"
 
+	baseUrl,err := utils.ReadBaseUrl() 
+	if err != nil {
+		log.Panicln("baseUrl非法, 无法链接mirai-http服务")
+	}
+
 	requestBody := miraiRequest.Release {
 		SessionKey: sessionKey,
 		QQ: qq,
@@ -97,7 +113,7 @@ func ReleaseSession(sessionKey string,qq int) (string, error) {
 	}
 
 	// 读取响应体
-	response,err := http.Post(utils.ReadBaseUrl()+router,"application/json", bytes.NewBuffer(jsonData))
+	response,err := http.Post(baseUrl+router,"application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", fmt.Errorf("获取SessionKey失败: %v",err)
 	}
