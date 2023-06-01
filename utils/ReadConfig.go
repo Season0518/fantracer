@@ -19,6 +19,16 @@ func ReadBotAccount() (int,error) {
 	return cfg.Int("Mirai","account")
 } 
 
+func ReadMySQLConfig() (string,string,string,error) {
+	section,err := cfg.GetSection("MySQL")
+
+	if err != nil {
+		return "","","",err
+	}
+
+	return section["account"],section["password"],section["port"],err
+}
+
 func init() {
 	cfg,err = goconfig.LoadConfigFile("config.ini")
 	if err != nil {

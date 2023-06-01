@@ -5,6 +5,8 @@ import (
 	"fantracer/utils"
 	"log"
 
+	"fantracer/respository"
+
 	"github.com/robfig/cron/v3"
 )
 
@@ -41,7 +43,11 @@ func FetchMemberList() {
 			log.Printf("在查询时发生错误: %v",err)
 		}
 		if len(members) != 0 {
-			log.Println(members[0])
+			respository.InsertGroup(members[0].Group)
+			for _,member := range members {
+				member.GroupID = member.Group.ID
+				respository.InsertMember(member)
+			}
 		} else {
 			log.Printf("群聊 %d 可能不存在\n",group)
 		}
