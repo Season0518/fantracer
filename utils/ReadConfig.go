@@ -15,8 +15,8 @@ func ReadVerifyKey() (string,error) {
 	return cfg.GetValue("Mirai","verifykey")
 }
 
-func ReadBotAccount() (int,error) {
-	return cfg.Int("Mirai","account")
+func ReadBotAccount() (int64,error) {
+	return cfg.Int64("Mirai","account")
 } 
 
 func ReadMySQLConfig() (string,string,string,error) {

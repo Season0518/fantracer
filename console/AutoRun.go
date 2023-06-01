@@ -11,7 +11,7 @@ import (
 )
 
 func FetchMemberList() {
-	fanGroups := [...] int { 700922190,660717822,671112420,763084701,669599441 }
+	fanGroups := [...] int64 { 700922190,660717822,671112420,763084701,669599441 }
 
 	// 获取SessionKey
 	verifyKey,_ := utils.ReadVerifyKey()

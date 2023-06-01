@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-func VerifySession(verifyKey string,qq int) (string, error) {
+func VerifySession(verifyKey string,qq int64) (string, error) {
 	router := "/verify"
 	
 	baseUrl,err := utils.ReadBaseUrl() 
@@ -52,7 +52,7 @@ func VerifySession(verifyKey string,qq int) (string, error) {
 	return session.Session, nil
 }
 
-func BindSession(sessionKey string,qq int) (string, error) {
+func BindSession(sessionKey string,qq int64) (string, error) {
 	router := "/bind"
 
 	baseUrl,err := utils.ReadBaseUrl() 
@@ -93,7 +93,7 @@ func BindSession(sessionKey string,qq int) (string, error) {
 	return session.Msg, nil
 }
 
-func ReleaseSession(sessionKey string,qq int) (string, error) {
+func ReleaseSession(sessionKey string,qq int64) (string, error) {
 	router := "/release"
 
 	baseUrl,err := utils.ReadBaseUrl() 

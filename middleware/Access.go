@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-func FetchGroupMembers(sessionKey string,group int,memberIds int) ([]models.Member,error) {
+func FetchGroupMembers(sessionKey string,group int64,memberIds int64) ([]models.Member,error) {
 	router := "/latestMemberList"
 
 	baseUrl,err := utils.ReadBaseUrl() 
@@ -37,8 +37,8 @@ func FetchGroupMembers(sessionKey string,group int,memberIds int) ([]models.Memb
 	// 设置查询参数
 	query := url.Query()
 	query.Set("sessionKey", requestBody.SessionKey)
-	query.Set("target", strconv.Itoa(requestBody.Target))
-	query.Set("memberIds", strconv.Itoa(requestBody.MemberIds))
+	query.Set("target", strconv.FormatInt(requestBody.Target, 10))
+	query.Set("memberIds", strconv.FormatInt(requestBody.MemberIds, 10))
 
 	url.RawQuery = query.Encode()	
 	
