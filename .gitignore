@@ -1,13 +1,9 @@
 # Project exclude paths
-/.gradle/
 /build/
 /.idea/
-/test/
-/out/
-/run/
-/debug-sandbox
-config.ini
+test
 /.vscode
 .DS_Store
 .VSCodeCounter
 todo.md
+/bin/*

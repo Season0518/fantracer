@@ -1,11 +1,9 @@
 package middleware
 
 import (
+	"core/models"
+	"core/utils"
 	"encoding/json"
-	"fantracer/models"
-	miraiRequest "fantracer/models/mirai/Request"
-	miraiResponse "fantracer/models/mirai/Response"
-	"fantracer/utils"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,24 +12,24 @@ import (
 	"strings"
 )
 
-func FetchGroupMembers(sessionKey string,group int64,memberIds int64) ([]models.Member,error) {
+func FetchGroupMembers(sessionKey string, group int64, memberIds int64) ([]models.Member, error) {
 	router := "/latestMemberList"
 
-	baseUrl,err := utils.ReadBaseUrl() 
+	baseUrl, err := utils.ReadBaseUrl()
 	if err != nil {
 		log.Panicln("baseUrl非法, 无法链接mirai-http服务")
 	}
 
-	requestBody := miraiRequest.Universial {
+	requestBody := models.UniversialReq{
 		SessionKey: sessionKey,
-		Target: group,
-		MemberIds: memberIds,
+		Target:     group,
+		MemberIds:  memberIds,
 	}
 
 	// 构建 URL
-	url, err := url.Parse(baseUrl+router)
+	url, err := url.Parse(baseUrl + router)
 	if err != nil {
-		return []models.Member{},fmt.Errorf("url解析失败: %v", err)
+		return []models.Member{}, fmt.Errorf("url解析失败: %v", err)
 	}
 
 	// 设置查询参数
@@ -40,24 +38,24 @@ func FetchGroupMembers(sessionKey string,group int64,memberIds int64) ([]models.
 	query.Set("target", strconv.FormatInt(requestBody.Target, 10))
 	query.Set("memberIds", strconv.FormatInt(requestBody.MemberIds, 10))
 
-	url.RawQuery = query.Encode()	
-	
+	url.RawQuery = query.Encode()
+
 	invaildParam := "memberIds=0"
-	requestUrl := strings.Replace(url.String(),invaildParam,"memberIds",-1)
+	requestUrl := strings.Replace(url.String(), invaildParam, "memberIds", -1)
 
 	response, err := http.Get(requestUrl)
 	if err != nil {
-		return []models.Member{},fmt.Errorf("HTTP request failed: %v", err)
+		return []models.Member{}, fmt.Errorf("HTTP request failed: %v", err)
 	}
 	defer response.Body.Close()
 
 	//解析响应体
-	var latestMemberList miraiResponse.LatestMemberList
+	var latestMemberList models.LatestMemberList
 	err = json.NewDecoder(response.Body).Decode(&latestMemberList)
 	if err != nil {
 		fmt.Println(latestMemberList.Data)
 		return []models.Member{}, fmt.Errorf("failed to decode response body: %v", err)
 	}
-	
-	return latestMemberList.Data, nil		
+
+	return latestMemberList.Data, nil
 }
