@@ -1,5 +1,8 @@
 go 1.18
 
-use ./server
-use ./tools/collector
-use ./core
+use (
+	./server
+	./tools/collector
+	./tools/chatbot
+	./core
+)

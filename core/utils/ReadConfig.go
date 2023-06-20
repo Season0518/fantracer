@@ -13,7 +13,7 @@ var cfg *goconfig.ConfigFile
 
 // var err error
 
-func ReadBaseUrl() (string, error) {
+func ReadMiraiBaseUrl() (string, error) {
 	return cfg.GetValue("Mirai", "baseurl")
 }
 
@@ -35,6 +35,14 @@ func ReadMySQLConfig() (string, string, string, error) {
 	return section["account"], section["password"], section["port"], err
 }
 
+func ReadWebsocketHost() (string, error) {
+	return cfg.GetValue("CQHttp", "websocket")
+}
+
+func ReadCQBaseUrl() (string, error) {
+	return cfg.GetValue("CQHttp", "baseurl")
+}
+
 func init() {
 	executablePath, err := os.Executable()
 	if err != nil {
@@ -46,7 +54,7 @@ func init() {
 	configFilePath := filepath.Join(executableDir, "config.ini")
 	cfg, err = goconfig.LoadConfigFile(configFilePath)
 	if err != nil {
-		log.Println(err)
-		panic("配置文件读取失败")
+		//log.Println(err)
+		log.Printf("配置文件读取失败,部分功能可能无法正常使用\n错误信息: %v", err)
 	}
 }

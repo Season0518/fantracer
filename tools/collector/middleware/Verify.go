@@ -13,7 +13,7 @@ import (
 func VerifySession(verifyKey string, qq int64) (string, error) {
 	router := "/verify"
 
-	baseUrl, err := utils.ReadBaseUrl()
+	baseUrl, err := utils.ReadMiraiBaseUrl()
 	if err != nil {
 		log.Panicln("baseUrl非法, 无法链接mirai-http服务")
 	}
@@ -54,7 +54,7 @@ func VerifySession(verifyKey string, qq int64) (string, error) {
 func BindSession(sessionKey string, qq int64) (string, error) {
 	router := "/bind"
 
-	baseUrl, err := utils.ReadBaseUrl()
+	baseUrl, err := utils.ReadMiraiBaseUrl()
 	if err != nil {
 		log.Panicln("baseUrl非法, 无法链接mirai-http服务")
 	}
@@ -95,7 +95,7 @@ func BindSession(sessionKey string, qq int64) (string, error) {
 func ReleaseSession(sessionKey string, qq int64) (string, error) {
 	router := "/release"
 
-	baseUrl, err := utils.ReadBaseUrl()
+	baseUrl, err := utils.ReadMiraiBaseUrl()
 	if err != nil {
 		log.Panicln("baseUrl非法, 无法链接mirai-http服务")
 	}

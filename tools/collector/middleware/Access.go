@@ -15,7 +15,7 @@ import (
 func FetchGroupMembers(sessionKey string, group int64, memberIds int64) ([]models.Member, error) {
 	router := "/latestMemberList"
 
-	baseUrl, err := utils.ReadBaseUrl()
+	baseUrl, err := utils.ReadMiraiBaseUrl()
 	if err != nil {
 		log.Panicln("baseUrl非法, 无法链接mirai-http服务")
 	}
