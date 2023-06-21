@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func FetchGroupMembersV2(accessToken string, groupID int64) ([]models.MemberInfo, error) {
+func FetchGroupMembers(accessToken string, groupID int64) ([]models.MemberInfo, error) {
 	router := "/get_group_member_list"
 
 	baseUrl, err := utils.ReadCQBaseUrl()

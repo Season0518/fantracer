@@ -13,7 +13,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = components.FetchMemberListV2()
+	err = components.FetchMemberList()
 	if err != nil {
 		fmt.Println(err)
 	}
