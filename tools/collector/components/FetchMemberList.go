@@ -2,6 +2,7 @@ package components
 
 import (
 	"collector/middleware"
+	"core/driver"
 	"core/models"
 	"core/services"
 	"core/utils"
@@ -69,4 +70,24 @@ func FetchMemberList() {
 		log.Printf("释放时发生错误: %v", err)
 		return
 	}
+}
+
+func FetchMemberListV2() error {
+	fanGroups := [...]int64{700922190, 660717822, 671112420, 763084701, 669599441}
+
+	for _, groupID := range fanGroups {
+		members, err := middleware.FetchGroupMembersV2("", groupID)
+		if err != nil {
+			return err
+		}
+
+		for _, member := range members {
+			err = services.Upsert(member, driver.Engine)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"collector/components"
+	"fmt"
 	"log"
 )
 import "core/driver"
@@ -12,5 +13,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	components.FetchMemberList()
+	err = components.FetchMemberListV2()
+	if err != nil {
+		fmt.Println(err)
+	}
 }

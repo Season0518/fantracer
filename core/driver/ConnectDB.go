@@ -17,7 +17,6 @@ func InitDB() error {
 
 	account, password, port, err := utils.ReadMySQLConfig()
 	if err != nil {
-		//log.Fatalf("读取MySQL配置失败!")
 		return err
 	}
 
@@ -41,9 +40,10 @@ func InitDB() error {
 
 	// 创建多个表
 	modelsToSync := []interface{}{
-		new(models.Group),
-		new(models.Member),
-		new(models.GroupInfo),
+		//new(models.Group),
+		//new(models.Member),
+		//new(models.GroupInfo),
+		new(models.MemberInfo),
 	}
 
 	for _, model := range modelsToSync {
