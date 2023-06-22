@@ -1,7 +1,8 @@
 package main
 
 import (
-	"collector/components"
+	"core/models"
+	"core/services"
 	"fmt"
 	"log"
 )
@@ -13,8 +14,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = components.FetchMemberList()
+	//err = components.FetchMemberList()
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+
+	var q []models.MemberInfo
+	err = services.Query(fmt.Sprintf("user_id = %v", 1342367762), &q, driver.Engine)
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println(q)
+
 }

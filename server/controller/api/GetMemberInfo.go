@@ -1,6 +1,8 @@
 package api
 
 import (
+	"core/driver"
+	"core/models"
 	"core/services"
 	"fmt"
 	"net/http"
@@ -15,7 +17,9 @@ func GetMemberInfo(c *gin.Context) {
 	if err != nil {
 		fmt.Println("QQ号异常")
 	}
-	records, err := services.FindMemberInGroups(memberID)
+
+	var records []models.MemberInfo
+	err = services.Query(fmt.Sprintf("user_id = %v", memberID), &records, driver.Engine)
 
 	if err != nil {
 		fmt.Println("在查询时发生异常")
