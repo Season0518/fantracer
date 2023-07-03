@@ -19,7 +19,7 @@ func GetMemberInfo(c *gin.Context) {
 	}
 
 	var records []models.MemberInfo
-	err = services.Query(fmt.Sprintf("user_id = %v", memberID), &records, driver.Engine)
+	err = services.QueryDB(fmt.Sprintf("user_id = %v", memberID), &records, driver.Engine)
 
 	if err != nil {
 		fmt.Println("在查询时发生异常")

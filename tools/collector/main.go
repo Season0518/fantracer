@@ -1,12 +1,11 @@
 package main
 
 import (
-	"core/models"
-	"core/services"
+	"collector/components"
+	"core/driver"
 	"fmt"
 	"log"
 )
-import "core/driver"
 
 func main() {
 	err := driver.InitDB()
@@ -14,16 +13,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//err = components.FetchMemberList()
-	//if err != nil {
-	//	fmt.Println(err)
-	//}
-
-	var q []models.MemberInfo
-	err = services.Query(fmt.Sprintf("user_id = %v", 1342367762), &q, driver.Engine)
+	err = components.FetchMemberList()
+	err = components.FetchGroupInfo()
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(q)
+
+	//var q []models.MemberInfo
+	//err = services.QueryDB(fmt.Sprintf("user_id = %v", 1342367762), &q, driver.Engine)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//fmt.Println(q)
 
 }

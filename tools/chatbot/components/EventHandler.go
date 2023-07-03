@@ -7,7 +7,7 @@ import (
 )
 
 func HandleMessageEvent(rawData []byte, data map[string]interface{}) error {
-	fmt.Printf("这是一条消息,内容是: %v\n", data)
+	//fmt.Printf("这是一条消息,内容是: %v\n", data)
 
 	return nil
 }
@@ -21,7 +21,7 @@ func HandleNoticeEvent(rawData []byte, data map[string]interface{}) error {
 			return err
 		}
 	} else {
-		fmt.Printf("这是一条通知,内容是:%v\n", data)
+		//fmt.Printf("这是一条通知,内容是:%v\n", data)
 	}
 	return nil
 }
@@ -39,7 +39,6 @@ func HandleIncreaseEvent(data []byte) error {
 	}
 
 	if increaseEvent.GroupID == groupId {
-		//err = SendWelcomeMessage(increaseEvent.GroupID, userJoinedChan)
 		userJoinedChan <- increaseEvent
 		if err != nil {
 			return err

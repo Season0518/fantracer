@@ -7,6 +7,10 @@ import (
 )
 
 func main() {
+	//var test models.GroupIncreaseEvent
+	//test.UserID = 2185154974
+
+	//fmt.Println(utils.SerializeCQCode(components.BuildWelComeMessage([]models.GroupIncreaseEvent{test})))
 	err := driver.InitWS()
 	if err != nil {
 		log.Fatal(err)

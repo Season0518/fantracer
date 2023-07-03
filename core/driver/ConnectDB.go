@@ -44,6 +44,7 @@ func InitDB() error {
 		//new(models.Member),
 		//new(models.GroupInfo),
 		new(models.MemberInfo),
+		new(models.GroupInfo),
 	}
 
 	for _, model := range modelsToSync {
