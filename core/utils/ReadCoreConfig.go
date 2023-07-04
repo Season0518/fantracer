@@ -1,12 +1,8 @@
 package utils
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"path/filepath"
-
 	"github.com/Unknwon/goconfig"
+	"log"
 )
 
 var cfg *goconfig.ConfigFile
@@ -44,17 +40,15 @@ func ReadCQBaseUrl() (string, error) {
 }
 
 func init() {
-	executablePath, err := os.Executable()
+	configFilePath, err := ConvertToFullPath("config.ini")
 	if err != nil {
-		fmt.Println("Error getting current directory:", err)
+		log.Printf("%v", err)
 		return
 	}
 
-	executableDir := filepath.Dir(executablePath)
-	configFilePath := filepath.Join(executableDir, "config.ini")
 	cfg, err = goconfig.LoadConfigFile(configFilePath)
 	if err != nil {
-		//log.Println(err)
 		log.Printf("配置文件读取失败,部分功能可能无法正常使用\n错误信息: %v", err)
+		return
 	}
 }

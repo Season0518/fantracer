@@ -3,12 +3,15 @@ package components
 import (
 	"chatbot/middleware"
 	"core/models"
+	"core/utils"
+	"fmt"
+	"log"
 	"math/rand"
 	"strconv"
 	"time"
 )
 
-func BuildWelComeMessage(newComers []models.GroupIncreaseEvent) []models.MessageBody {
+func BuildWelComeMessage(newComers []models.GroupIncreaseEvent) ([]models.MessageBody, error) {
 	var messageChain []models.MessageBody
 
 	for _, user := range newComers {
@@ -20,15 +23,24 @@ func BuildWelComeMessage(newComers []models.GroupIncreaseEvent) []models.Message
 		})
 	}
 
+	welcomeMsg, err := utils.ReadWelcomeText()
+	if err != nil {
+		return nil, err
+	}
+
 	messageChain = append(messageChain, models.MessageBody{
 		Type: "text",
 		Data: map[string]string{
-			"text": "欢迎新人！\\n\\n快乐小妙招，爱上小年糕🌟\\n\\n在你面前的正是——长春首个地偶团体成员/线上线下主打反差/温柔腼腆内敛小女孩/生吃坟墓第一人/一人驯服数千igao/东北最火地偶/超绝可爱の年糕公主殿下！\\n\\n加入糕老师粉丝群吧！ 请多多支持年糕老师，感谢🙏",
+			"text": welcomeMsg,
 		},
 	})
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	posterURLs := []string{}
+	posterURLs, err := utils.ReadMediaURL()
+	if err != nil {
+		return nil, err
+	}
+
 	messageChain = append(messageChain, models.MessageBody{
 		Type: "image",
 		Data: map[string]string{
@@ -37,32 +49,42 @@ func BuildWelComeMessage(newComers []models.GroupIncreaseEvent) []models.Message
 		},
 	})
 
-	return messageChain
+	return messageChain, nil
 }
 
-func SendWelcomeMessage(groupId int64, userJoinedChan chan models.GroupIncreaseEvent) error {
-	var newUsers []models.GroupIncreaseEvent
-	var timer *time.Timer
+func SendWelcomeMessage(groupIds []int64, userJoinedChan chan models.GroupIncreaseEvent) {
+	var messageChain []models.MessageBody
 	var err error
 
+	newComersMap := make(map[int64][]models.GroupIncreaseEvent)
+	timerMap := make(map[int64]*time.Timer)
+
 	for joinInfo := range userJoinedChan {
-		newUsers = append(newUsers, joinInfo)
-		if timer == nil {
-			timer = time.AfterFunc(30*time.Second, func() {
-				messageChain := BuildWelComeMessage(newUsers)
-				err = middleware.PostMessageSendEvent(groupId, messageChain)
-				newUsers = nil // 清空 newUsers
-				timer = nil    // 清空 timer
-				if err != nil {
-					return
+		if utils.FindElement(groupIds, joinInfo.GroupID) == -1 {
+			continue
+		}
+		newComersMap[joinInfo.GroupID] = append(newComersMap[joinInfo.GroupID], joinInfo)
+
+		if timerMap[joinInfo.GroupID] == nil {
+			timerMap[joinInfo.GroupID] = time.AfterFunc(30*time.Second, func(groupId int64) func() {
+				return func() {
+					messageChain, err = BuildWelComeMessage(newComersMap[groupId])
+					if err != nil {
+						log.Panic("Build welcome message failed: ", err)
+					}
+					err = middleware.PostMessageSendEvent(groupId, messageChain)
+					timerMap[groupId] = nil
+					newComersMap[groupId] = nil
+
+					if err != nil {
+						log.Println("Send welcome message failed: ", err)
+					}
 				}
-			})
+			}(joinInfo.GroupID))
+
+			for value, key := range timerMap {
+				fmt.Println(value, key)
+			}
 		}
 	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

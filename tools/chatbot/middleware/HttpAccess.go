@@ -26,13 +26,18 @@ func PostMessageSendEvent(groupId int64, messageChain []models.MessageBody) erro
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(resp.Body)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
-	log.Println(string(body))
+	log.Printf("发送了一条欢迎消息，响应为:%s\n", string(body))
 
 	return nil
 }

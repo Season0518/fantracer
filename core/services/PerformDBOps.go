@@ -22,7 +22,7 @@ func GetPrimaryKeys[T any](data T) []interface{} {
 	return keys
 }
 
-// UpsertDB is a generic function that tries to insert a new row into the database.
+// UpsertDB is a generic function that tries to insert a new row into the database
 // If the insert fails (usually due to a primary key conflict), it updates the existing row.
 func UpsertDB[T any](data T, engine *xorm.Engine) error {
 	pks := GetPrimaryKeys(data)
