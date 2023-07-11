@@ -1,8 +1,8 @@
 package components
 
 import (
-	"chatbot/middleware"
 	"core/models"
+	"core/services/cqhttp"
 	"core/utils"
 	"fmt"
 	"log"
@@ -72,7 +72,7 @@ func SendWelcomeMessage(groupIds []int64, userJoinedChan chan models.GroupIncrea
 					if err != nil {
 						log.Panic("Build welcome message failed: ", err)
 					}
-					err = middleware.PostMessageSendEvent(groupId, messageChain)
+					err = cqhttp.PostMessageSendEvent(groupId, messageChain)
 					timerMap[groupId] = nil
 					newComersMap[groupId] = nil
 

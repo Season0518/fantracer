@@ -1,8 +1,8 @@
 package components
 
 import (
-	"chatbot/middleware"
 	"core/models"
+	"core/services/cqhttp"
 	"core/utils"
 	"encoding/json"
 	"fmt"
@@ -19,7 +19,6 @@ func HandleMessageEvent(rawData []byte, data map[string]interface{}) error {
 	}
 
 	if groupMessage.GroupID == debug {
-		//fmt.Printf("DEBUG: %v\n", rawData)
 		fmt.Printf("DEBUG: %v\n", groupMessage.Message)
 		if groupMessage.Message == "/poster" {
 			var increaseEvent models.GroupIncreaseEvent
@@ -42,7 +41,7 @@ func HandleMessageEvent(rawData []byte, data map[string]interface{}) error {
 			}
 			loadedMsg := fmt.Sprintf("目前已经载入的欢迎词是: \\n\\n%v\\n\\n目前已经载入的图片URL有: %v", welcomeText, mediaURL)
 
-			err = middleware.PostMessageSendEvent(debug, []models.MessageBody{
+			err = cqhttp.PostMessageSendEvent(debug, []models.MessageBody{
 				{Type: "text", Data: map[string]string{"text": loadedMsg}},
 			})
 			if err != nil {
