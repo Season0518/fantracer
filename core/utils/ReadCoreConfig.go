@@ -48,6 +48,12 @@ func init() {
 
 	cfg, err = goconfig.LoadConfigFile(configFilePath)
 	if err != nil {
+		// fallback
+		cfg, err = goconfig.LoadConfigFile("/Users/season/Projects/GolandProjects/fantracer/bin/config.ini")
+		if err == nil {
+			log.Printf("启动调试模式")
+			return
+		}
 		log.Printf("配置文件读取失败,部分功能可能无法正常使用\n错误信息: %v", err)
 		return
 	}

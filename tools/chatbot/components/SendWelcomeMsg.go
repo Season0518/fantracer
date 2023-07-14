@@ -6,51 +6,8 @@ import (
 	"core/utils"
 	"fmt"
 	"log"
-	"math/rand"
-	"strconv"
 	"time"
 )
-
-func BuildWelComeMessage(newComers []models.GroupIncreaseEvent) ([]models.MessageBody, error) {
-	var messageChain []models.MessageBody
-
-	for _, user := range newComers {
-		messageChain = append(messageChain, models.MessageBody{
-			Type: "at",
-			Data: map[string]string{
-				"qq": strconv.FormatInt(user.UserID, 10),
-			},
-		})
-	}
-
-	welcomeMsg, err := utils.ReadWelcomeText()
-	if err != nil {
-		return nil, err
-	}
-
-	messageChain = append(messageChain, models.MessageBody{
-		Type: "text",
-		Data: map[string]string{
-			"text": welcomeMsg,
-		},
-	})
-
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	posterURLs, err := utils.ReadMediaURL()
-	if err != nil {
-		return nil, err
-	}
-
-	messageChain = append(messageChain, models.MessageBody{
-		Type: "image",
-		Data: map[string]string{
-			"file":    posterURLs[r.Intn(len(posterURLs))],
-			"subType": "0",
-		},
-	})
-
-	return messageChain, nil
-}
 
 func SendWelcomeMessage(groupIds []int64, userJoinedChan chan models.GroupIncreaseEvent) {
 	var messageChain []models.MessageBody

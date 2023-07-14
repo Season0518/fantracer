@@ -1,7 +1,7 @@
 # Project exclude paths
 /build/
 /.idea/
-test
+tools/chatbot/test
 /.vscode
 .DS_Store
 .VSCodeCounter

@@ -40,11 +40,10 @@ func InitDB() error {
 
 	// 创建多个表
 	modelsToSync := []interface{}{
-		//new(models.Group),
-		//new(models.Member),
-		//new(models.GroupInfo),
 		new(models.MemberInfo),
 		new(models.GroupInfo),
+		new(models.PostRecord),
+		new(models.PostInfo),
 	}
 
 	for _, model := range modelsToSync {
