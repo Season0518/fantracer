@@ -13,13 +13,26 @@ import (
 )
 
 func FetchLatestWeibo(uid int64) error {
-	resp, err := weibo.GetLatestBlog(uid, 1)
+	var resp models.SinaWeiboResp
+	var err error
+	maxAttempt := 3
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	for i := 0; i < maxAttempt; i++ {
+		resp, err = weibo.GetLatestBlog(uid, 1)
+		if err == nil && resp.Ok == 1 {
+			break
+		}
+
+		log.Printf("在%d未能成功对%d执行Update操作,重试次数: %d", time.Now().UnixNano(), uid, i)
+		time.Sleep(time.Duration(600+r.Intn(600)) * time.Second)
+	}
 	if err != nil {
 		return err
 	}
 
 	if resp.Ok != 1 {
-		return fmt.Errorf("不能获取微博更新状态,响应:%s", resp.Data)
+		return fmt.Errorf("获取微博更新状态发生错误: 状态码异常,重试到达上限,请重启服务")
 	}
 
 	for _, blog := range resp.Data.Cards {
@@ -84,7 +97,7 @@ func UpdatePostInfo(userID int64, platform string) error {
 			return err
 		}
 
-		err = cqhttp.PostMessageSendEvent(865444787, updateMessage)
+		err = cqhttp.PostMessageSendEvent(660717822, updateMessage)
 		if err != nil {
 			return err
 		}
@@ -92,8 +105,17 @@ func UpdatePostInfo(userID int64, platform string) error {
 	}
 }
 
+func UpdateExceptionHandler(exception error) error {
+	failedMessage, _ := BuildFailedMessage(exception)
+	err1 := cqhttp.PostMessageSendEvent(865444787, failedMessage)
+	if err1 != nil {
+		return err1
+	}
+	return nil
+}
+
 func SendUpdateMessage() error {
-	funcs := []struct {
+	platform := []struct {
 		Func     func(int64) error
 		UIDs     []int64
 		Platform string
@@ -104,24 +126,24 @@ func SendUpdateMessage() error {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for {
-		for _, uf := range funcs {
-			// 所有错误预期打印到测试群中，暂未实现。
+		for _, uf := range platform {
 			for _, uid := range uf.UIDs {
 				err := uf.Func(uid)
 				if err != nil {
-					log.Printf("Error updating for UIDs %v: %v\n", uf.UIDs, err)
+					_ = UpdateExceptionHandler(err)
 					return err
 				}
-				log.Println("Updated: ", uid)
 
 				err = UpdatePostInfo(uid, uf.Platform)
 				if err != nil {
+					_ = UpdateExceptionHandler(err)
 					return err
 				}
-				time.Sleep(time.Duration(5+r.Intn(5)) * time.Second)
 
+				log.Printf("%s 在%d成功对%d执行操作: Update", uf.Platform, time.Now().UnixNano(), uid)
+				time.Sleep(time.Duration(5+r.Intn(15)) * time.Second)
 			}
-			time.Sleep(time.Duration(10+r.Intn(30)) * time.Second)
+			time.Sleep(time.Duration(35+r.Intn(120)) * time.Second)
 		}
 	}
 }

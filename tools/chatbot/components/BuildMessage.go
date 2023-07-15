@@ -75,3 +75,17 @@ func BuildUpdateMessage(info models.PostInfo, record models.PostRecord) ([]model
 	})
 	return messageChain, nil
 }
+
+func BuildFailedMessage(err error) ([]models.MessageBody, error) {
+	var messageChain []models.MessageBody
+
+	messageChain = append(messageChain, models.MessageBody{
+		Type: "text",
+		Data: map[string]string{
+			"text":    fmt.Sprintf("程序抛出异常: %v", err),
+			"subType": "0",
+		},
+	})
+
+	return messageChain, nil
+}
