@@ -66,7 +66,7 @@ func UpdatePostInfo(userID int64, platform string) error {
 		return err
 	}
 
-	// 如果不存在更新记录，则最后一次发布记录为更新记录。
+	// 如果PostInfo中没有记录某UID最后一次更新的时间戳，则将数据库中该UID的最后一条记录作为最后一次更新的时间戳
 	if updateInfo.UserID == 0 {
 		err = services.InsertDB(models.PostInfo{
 			UserID:    userID,
@@ -116,9 +116,9 @@ func UpdateExceptionHandler(exception error) error {
 
 func SendUpdateMessage() error {
 	platform := []struct {
-		Func     func(int64) error
-		UIDs     []int64
-		Platform string
+		FetchEvent func(int64) error
+		UIDs       []int64
+		Platform   string
 	}{
 		{FetchLatestWeibo, []int64{6620766403, 6593497650}, "微博"},
 	}
@@ -128,7 +128,9 @@ func SendUpdateMessage() error {
 	for {
 		for _, uf := range platform {
 			for _, uid := range uf.UIDs {
-				err := uf.Func(uid)
+				//执行不同平台的更新操作。
+				err := uf.FetchEvent(uid)
+
 				if err != nil {
 					_ = UpdateExceptionHandler(err)
 					return err

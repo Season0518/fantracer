@@ -59,17 +59,21 @@ func BuildUpdateMessage(info models.PostInfo, record models.PostRecord) ([]model
 			"qq": "all",
 		},
 	})
+
+	// 用于截断字符串
+	//truncateString := func(s string, limit int) string {
+	//	r := []rune(s)
+	//	if len(r) < limit {
+	//		return string(r)
+	//	} else {
+	//		return string(r[:limit]) + "..."
+	//	}
+	//}
+
 	messageChain = append(messageChain, models.MessageBody{
 		Type: "text",
 		Data: map[string]string{
-			"text": fmt.Sprintf("公主在%s发布了内容！\\n\\n%s\\n\\n快点击%s围观吧！", info.Platform, func(s string) string {
-				r := []rune(s)
-				if len(r) < 10 {
-					return string(r)
-				} else {
-					return string(r[:10]) + "..."
-				}
-			}(record.Text), record.Refer),
+			"text":    fmt.Sprintf("公主在%s发布了内容！\\n\\n%s\\n\\n快点击%s围观吧！", info.Platform, record.Text, record.Refer),
 			"subType": "0",
 		},
 	})

@@ -12,23 +12,62 @@ import (
 	"time"
 )
 
-// extractText function to extract text from HTML
-func extractText(s string) string {
-	doc, _ := html.Parse(strings.NewReader(s))
-	var b strings.Builder
-	var f func(*html.Node)
-	f = func(n *html.Node) {
-		if n.Type == html.TextNode {
-			b.WriteString(n.Data)
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c)
+type node struct {
+	skip bool
+	n    *html.Node
+}
+
+// processAttributes function to process attributes of HTML
+func processAttributes(fa *node, b *strings.Builder) {
+	for _, subAttr := range fa.n.FirstChild.Attr {
+		if subAttr.Key == "src" && strings.Contains(subAttr.Val, "timeline_card_small_super_default.png") {
+			//如果是超话则标记skip标签，并丢弃所有子节点
+			fa.skip = true
+			return
+		} else if subAttr.Key == "src" && strings.Contains(subAttr.Val, "timeline_card_small_location_default.png") {
+			//如果是位置信息则向stringBuilder添加圆图钉emoji
+			b.WriteString("📍")
 		}
 	}
-	f(doc)
+	return
+}
+
+// BlogTextParser function to extract text from HTML
+// 20230903 Updated: 丢弃超话的超链接及文本，优化位置信息的显示
+func BlogTextParser(s string) string {
+	doc, _ := html.Parse(strings.NewReader(s))
+
+	var b strings.Builder
+	var f func(fa *node)
+
+	//递归处理获取到的微博HTML对象
+	f = func(fa *node) {
+		if fa.n.Type == html.ElementNode {
+			for _, attr := range fa.n.Attr {
+				//根据url-icon的图标分类超链接的类型
+				if attr.Key == "class" && attr.Val == "url-icon" {
+					processAttributes(fa, &b)
+				}
+			}
+		}
+
+		if fa.n.Type == html.TextNode {
+			b.WriteString(fa.n.Data)
+		}
+		for c := fa.n.FirstChild; c != nil; c = c.NextSibling {
+			sub := node{skip: false, n: c}
+			f(&sub)
+			if sub.skip {
+				return
+			}
+		}
+	}
+	f(&node{skip: false, n: doc})
+
 	return b.String()
 }
 
+// GetLatestBlog function is used to get all the blogs of a user's homepage on Weibo
 func GetLatestBlog(uid int64, page int) (models.SinaWeiboResp, error) {
 	requestURL := "https://m.weibo.cn/api/container/getIndex"
 
@@ -66,7 +105,7 @@ func GetLatestBlog(uid int64, page int) (models.SinaWeiboResp, error) {
 
 	//Format the text
 	for i, card := range latestBlog.Data.Cards {
-		card.Mblog.Text = extractText(card.Mblog.Text)
+		card.Mblog.Text = BlogTextParser(card.Mblog.Text)
 
 		t, err := time.Parse("Mon Jan 2 15:04:05 -0700 2006", card.Mblog.CreatedAt)
 		if err == nil {
