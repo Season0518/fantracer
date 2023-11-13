@@ -11,3 +11,12 @@ type GroupInfo struct {
 	MaxMemberCount  int32  `xorm:"'max_member_count' not null" json:"max_member_count"`   // 最大成员数（群容量）
 	InfoRetrievedAt int64  `xorm:"'info_retrieved_at' not null" json:"-"`                 // 获取信息的时间
 }
+
+type GroupBlackList struct {
+	ID         int64  `xorm:"'id' not null pk autoincr" json:"-"` // 自增ID
+	GroupID    int64  `xorm:"'group_id' not null" json:"-"`       // 群号
+	UserID     int64  `xorm:"'user_id' not null" json:"-"`        // 用户ID
+	Time       int64  `xorm:"'time'" json:"-"`                    // 操作时间
+	OperatorID int64  `xorm:"'operator_id' not null" json:"-"`    // 执行人ID
+	SubType    string `xorm:"'sub_type' not null" json:"-"`       // 事件子类型
+}

@@ -119,3 +119,39 @@ func GetMemberList(groupID int64, noCache bool) ([]models.MemberInfo, error) {
 
 	return groupMembers, err
 }
+
+func SetGroupAddRequest(joinEvent models.GroupJoinEvent, approve bool, reason string) error {
+	route := "/set_group_add_request"
+	_, err := GetHttpData("", route, map[string]string{
+		"flag":     joinEvent.Flag,
+		"sub_type": joinEvent.SubType,
+		"approve":  strconv.FormatBool(approve),
+		"reason":   reason,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetStrangerInfo(userID int64, noCache bool) (models.UserInfo, error) {
+	route := "/get_stranger_info"
+	rawData, err := GetHttpData("", route, map[string]string{
+		"user_id":  strconv.FormatInt(userID, 10),
+		"no_cache": strconv.FormatBool(noCache),
+	})
+	if err != nil {
+		return models.UserInfo{}, err
+	}
+
+	var UserInfo models.UserInfo
+	err = SerializeRespData(rawData, &UserInfo)
+
+	if err != nil {
+		return models.UserInfo{}, err
+	}
+
+	return UserInfo, nil
+}

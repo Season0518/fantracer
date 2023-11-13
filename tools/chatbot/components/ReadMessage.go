@@ -41,6 +41,11 @@ func ReadMessages(c *websocket.Conn, done chan struct{}) {
 			if err != nil {
 				log.Println(err)
 			}
+		case "request":
+			err = HandleRequestEvent(rawData, data)
+			if err != nil {
+				log.Println(err)
+			}
 		default:
 			//fmt.Printf("其他类型通知,内容是:%v\n", data)
 		}
