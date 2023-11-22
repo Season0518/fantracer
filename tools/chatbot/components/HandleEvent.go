@@ -5,7 +5,6 @@ import (
 	"core/models"
 	"core/services"
 	"core/services/cqhttp"
-	"core/utils"
 	"encoding/json"
 	"fmt"
 )
@@ -33,19 +32,26 @@ func HandleMessageEvent(rawData []byte, data map[string]interface{}) error {
 				return err
 			}
 		} else if groupMessage.Message == "/content" {
-			mediaURL, err := utils.ReadMediaURL()
-			if err != nil {
-				return err
-			}
-			welcomeText, err := utils.ReadWelcomeText()
-			if err != nil {
-				return err
-			}
-			loadedMsg := fmt.Sprintf("目前已经载入的欢迎词是: \\n\\n%v\\n\\n目前已经载入的图片URL有: %v", welcomeText, mediaURL)
+			// 暂时弃用配置加载查询功能
+			// Todo: 增加更全面的状态监控
+			//mediaURL, err := utils.ReadMediaURL()
+			//if err != nil {
+			//	return err
+			//}
+			//welcomeText, err := utils.ReadWelcomeText()
+			//if err != nil {
+			//	return err
+			//}
+			//loadedMsg := fmt.Sprintf("目前已经载入的欢迎词是: \\n\\n%v\\n\\n目前已经载入的图片URL有: %v", welcomeText, mediaURL)
+
+			//err = cqhttp.PostMessageSendEvent(debug, []models.MessageBody{
+			//	{Type: "text", Data: map[string]string{"text": loadedMsg}},
+			//})
 
 			err = cqhttp.PostMessageSendEvent(debug, []models.MessageBody{
-				{Type: "text", Data: map[string]string{"text": loadedMsg}},
+				{Type: "text", Data: map[string]string{"text": "Fantracer正常工作"}},
 			})
+
 			if err != nil {
 				return err
 			}

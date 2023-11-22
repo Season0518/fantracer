@@ -2,7 +2,6 @@ package driver
 
 import (
 	"core/models"
-	"core/utils"
 	"fmt"
 	"log"
 
@@ -15,23 +14,17 @@ var Engine *xorm.Engine
 func InitDB() error {
 	var err error
 
-	account, password, port, err := utils.ReadMySQLConfig()
-	if err != nil {
-		return err
-	}
+	connection := fmt.Sprintf("%s:%s@(localhost:%s)/fantracer?charset=utf8mb4",
+		Base.MySQL.Account,
+		Base.MySQL.Password,
+		fmt.Sprintf("%d", Base.MySQL.Port),
+	)
 
-	connection := fmt.Sprintf("%s:%s@(localhost:%s)/fantracer?charset=utf8mb4", account, password, port)
-	fmt.Println(connection)
 	Engine, err = xorm.NewEngine("mysql", connection)
 	if err != nil {
 		//log.Fatalf("Fail to create engine: %v\n", err)
 		return err
 	}
-
-	// you can adjust the configurations according to your needs
-	// Engine.ShowSQL(true)
-	// Engine.SetMaxOpenConns(10)
-	// Engine.SetMaxIdleConns(5)
 
 	if err = Engine.Ping(); err != nil {
 		//log.Fatalf("Fail to ping database: %v\n", err)

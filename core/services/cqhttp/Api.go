@@ -2,6 +2,7 @@ package cqhttp
 
 import (
 	"bytes"
+	"core/driver"
 	"core/models"
 	"core/utils"
 	"fmt"
@@ -13,10 +14,7 @@ import (
 )
 
 func GetHttpData(accessToken string, route string, params map[string]string) ([]byte, error) {
-	baseUrl, err := utils.ReadCQBaseUrl()
-	if err != nil {
-		log.Panicln("baseUrl非法, 无法链接go-cqHttp服务")
-	}
+	baseUrl := driver.Base.Bot.Http
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", baseUrl+route, nil)
@@ -53,10 +51,7 @@ func PostMessageSendEvent(groupId int64, messageChain []models.MessageBody) erro
 	jsonStr := fmt.Sprintf(`{"group_id": %d, "message": "%s", "auto_escape": %v}`, groupId, cqMessage, false)
 	fmt.Println(jsonStr)
 
-	baseUrl, err := utils.ReadCQBaseUrl()
-	if err != nil {
-		return err
-	}
+	baseUrl := driver.Base.Bot.Http
 
 	resp, err := http.Post(baseUrl+router, "application/json", bytes.NewBuffer([]byte(jsonStr)))
 	if err != nil {

@@ -7,16 +7,22 @@ import (
 	"log"
 )
 
+var err error
+
 func main() {
-	var err error
+	err = driver.InitCfg()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	err = driver.InitDB()
 	if err != nil {
 		log.Fatal(err)
 	}
-	//err = driver.InitWS()
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	err = driver.InitWS()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	err = components.FetchMemberList()
 	err = components.FetchGroupInfo()

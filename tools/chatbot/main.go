@@ -6,8 +6,15 @@ import (
 	"log"
 )
 
+var err error
+
 func main() {
-	err := driver.InitWS()
+	err = driver.InitCfg()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = driver.InitWS()
 	if err != nil {
 		log.Fatal(err)
 	}

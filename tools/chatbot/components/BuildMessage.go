@@ -1,8 +1,8 @@
 package components
 
 import (
+	"core/driver"
 	"core/models"
-	"core/utils"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -21,9 +21,10 @@ func BuildWelComeMessage(newComers []models.GroupIncreaseEvent) ([]models.Messag
 		})
 	}
 
-	welcomeMsg, err := utils.ReadWelcomeText()
-	if err != nil {
-		return nil, err
+	// Todo: 现阶段不支持处理多群聊的情况，因此这里直接写死。
+	welcomeMsg := driver.Base.Greeting[0].Text
+	if len(welcomeMsg) == 0 {
+		return nil, fmt.Errorf("欢迎词不能为空")
 	}
 
 	messageChain = append(messageChain, models.MessageBody{
@@ -34,9 +35,11 @@ func BuildWelComeMessage(newComers []models.GroupIncreaseEvent) ([]models.Messag
 	})
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	posterURLs, err := utils.ReadMediaURL()
-	if err != nil {
-		return nil, err
+
+	// Todo: 欢迎海报属性修改为可选项
+	posterURLs := driver.Base.Greeting[0].MediaURL
+	if posterURLs == nil {
+		return nil, fmt.Errorf("欢迎海报不能为空")
 	}
 
 	messageChain = append(messageChain, models.MessageBody{
@@ -59,16 +62,6 @@ func BuildUpdateMessage(info models.PostInfo, record models.PostRecord) ([]model
 			"qq": "all",
 		},
 	})
-
-	// 用于截断字符串
-	//truncateString := func(s string, limit int) string {
-	//	r := []rune(s)
-	//	if len(r) < limit {
-	//		return string(r)
-	//	} else {
-	//		return string(r[:limit]) + "..."
-	//	}
-	//}
 
 	messageChain = append(messageChain, models.MessageBody{
 		Type: "text",
