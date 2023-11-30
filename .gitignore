@@ -7,3 +7,6 @@ tools/chatbot/test
 .VSCodeCounter
 todo.md
 /bin/*
+
+# except for .gitkeep
+!.gitkeep

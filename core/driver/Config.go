@@ -19,7 +19,7 @@ type MySQL struct {
 }
 
 // Greeting 欢迎新成员文案
-// Todo: 加载文案时使用CQ码或占位符，简化程序逻辑
+// : 加载文案时使用CQ码或占位符，简化程序逻辑
 type Greeting struct {
 	Target   int64    `yaml:"target"`
 	Text     string   `yaml:"text"`
@@ -45,7 +45,7 @@ type Config struct {
 
 var Base *Config
 
-// InitCfg 加载配置文件
+// InitCfg 加载配置文件 #39c5bb
 // Todo: 需要校验配置文件，部分字段不能为空或格式错误。
 func InitCfg(absPath ...string) error {
 	Base = &Config{}
