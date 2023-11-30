@@ -41,6 +41,12 @@ func SendMail(subject, body string) error {
 
 func InitNotify(c clockwork.Clock) error {
 	var err error = nil
+
+	// 未启用邮件服务
+	if !(driver.Base.Mail.Interval > 0) {
+		return err
+	}
+
 	ticker := c.NewTicker(time.Duration(driver.Base.Mail.Interval) * time.Hour)
 
 	body := fmt.Sprintf("在" + time.Unix(time.Now().Unix(), 0).Format("2006-01-02 15:04:05") + "时依赖服务初始化完毕，可以正常开始工作")
