@@ -120,11 +120,13 @@ func HandleJoinEvent(data []byte) error {
 		return err
 	}
 
+	// Todo: 进行权限校验，确保在自己是管理员的前提下进行操作。
 	if userInfo.Level < 19 {
-		err = cqhttp.SetGroupAddRequest(joinEvent, false, "您的QQ状态异常，请联系Staff邀请进群")
-		if err != nil {
-			return err
-		}
+		// err = cqhttp.SetGroupAddRequest(joinEvent, false, "您的QQ状态异常，请联系Staff邀请进群")
+		// if err != nil {
+		// 	return err
+		// }
+		return nil
 	} else if isUserBanned(joinEvent) {
 		err = cqhttp.SetGroupAddRequest(joinEvent, false, "您已被Staff拉黑，有疑问请联系Staff")
 		if err != nil {
