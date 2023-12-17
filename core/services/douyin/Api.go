@@ -1,4 +1,4 @@
-// Description: 该部分提供的抖音接口是在本地部署的。如需推送请自行搭建接口服务器
+// Package douyin Description: 该部分提供的抖音接口是在本地部署的。如需推送请自行搭建接口服务器
 package douyin
 
 import (
@@ -6,148 +6,110 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
+
+	"github.com/tidwall/gjson"
 )
 
+type Agent interface {
+	RetrieveFromAgent(endpoint string) ([]byte, error)
+}
+
+// Todo: 未对直播信息进行处理，其中直播见ID可以从room_data字段中获取
 type agent struct {
-	StatusCode int    `json:"status_code"`
-	Data       string `json:"data"`
+	StatusCode int             `json:"status_code"`
+	Data       json.RawMessage `json:"data"`
 }
 
-type Profile struct {
-	StatusCode int `json:"status_code,omitempty"`
-	StatusMsg  any `json:"status_msg,omitempty"`
-	User       struct {
-		AwemeCount                        int    `json:"aweme_count,omitempty"`
-		AwemeCountCorrectionThreshold     int    `json:"aweme_count_correction_threshold,omitempty"`
-		City                              string `json:"city,omitempty"`
-		Country                           string `json:"country,omitempty"`
-		District                          string `json:"district,omitempty"`
-		DongtaiCount                      int    `json:"dongtai_count,omitempty"`
-		FavoritingCount                   int    `json:"favoriting_count,omitempty"`
-		FollowerCount                     int    `json:"follower_count,omitempty"`
-		FollowingCount                    int    `json:"following_count,omitempty"`
-		ForwardCount                      int    `json:"forward_count,omitempty"`
-		Gender                            int    `json:"gender,omitempty"`
-		IsActivityUser                    bool   `json:"is_activity_user,omitempty"`
-		IsBan                             bool   `json:"is_ban,omitempty"`
-		LiveCommerce                      bool   `json:"live_commerce,omitempty"`
-		LiveStatus                        int    `json:"live_status,omitempty"`
-		MaxFollowerCount                  int    `json:"max_follower_count,omitempty"`
-		MplatformFollowersCount           int    `json:"mplatform_followers_count,omitempty"`
-		Nickname                          string `json:"nickname,omitempty"`
-		Province                          string `json:"province,omitempty"`
-		RoleID                            string `json:"role_id,omitempty"`
-		RoomID                            int    `json:"room_id,omitempty"`
-		SecUID                            string `json:"sec_uid,omitempty"`
-		Signature                         string `json:"signature,omitempty"`
-		TotalFavorited                    int    `json:"total_favorited,omitempty"`
-		TotalFavoritedCorrectionThreshold int    `json:"total_favorited_correction_threshold,omitempty"`
-		UID                               string `json:"uid,omitempty"`
-		UniqueID                          string `json:"unique_id,omitempty"`
-		UserAge                           int    `json:"user_age,omitempty"`
-	} `json:"user,omitempty"`
+type Api struct {
+	Server Agent
 }
 
-type UserInfo struct {
-	Profile
-	Posts struct {
-		StatusCode int `json:"status_code,omitempty"`
-		AwemeList  []struct {
-			AwemeID    string `json:"aweme_id,omitempty"`
-			Desc       string `json:"desc,omitempty"`
-			CreateTime int    `json:"create_time,omitempty"`
-			ItemTitle  string `json:"item_title,omitempty"`
-			Video      struct {
-				Cover struct {
-					URI     string   `json:"uri,omitempty"`
-					URLList []string `json:"url_list,omitempty"`
-					Width   int      `json:"width,omitempty"`
-					Height  int      `json:"height,omitempty"`
-				} `json:"cover,omitempty"`
-				Height       int `json:"height,omitempty"`
-				Width        int `json:"width,omitempty"`
-				DynamicCover struct {
-					URI     string   `json:"uri,omitempty"`
-					URLList []string `json:"url_list,omitempty"`
-					Width   int      `json:"width,omitempty"`
-					Height  int      `json:"height,omitempty"`
-				} `json:"dynamic_cover,omitempty"`
-				OriginCover struct {
-					URI     string   `json:"uri,omitempty"`
-					URLList []string `json:"url_list,omitempty"`
-					Width   int      `json:"width,omitempty"`
-					Height  int      `json:"height,omitempty"`
-				} `json:"origin_cover,omitempty"`
-			} `json:"video,omitempty"`
-			ShareURL  string `json:"share_url,omitempty"`
-			ShareInfo struct {
-				ShareURL      string `json:"share_url,omitempty"`
-				ShareLinkDesc string `json:"share_link_desc,omitempty"`
-			} `json:"share_info,omitempty"`
-			Original         int  `json:"original,omitempty"`
-			Duration         int  `json:"duration,omitempty"`
-			AwemeType        int  `json:"aweme_type,omitempty"`
-			MediaType        int  `json:"media_type,omitempty"`
-			ReportAction     bool `json:"report_action,omitempty"`
-			VisualSearchInfo struct {
-				IsShowEntrance        bool   `json:"is_show_entrance,omitempty"`
-				Extra                 string `json:"extra,omitempty"`
-				VisualSearchLongpress int    `json:"visual_search_longpress,omitempty"`
-			} `json:"visual_search_info,omitempty"`
-			PreviewTitle string `json:"preview_title,omitempty"`
-		} `json:"aweme_list,omitempty"`
+type Post struct {
+	SecUid       string
+	Nickname     string
+	AwemeId      string
+	CreateTime   int64
+	Desc         string
+	Duration     int64
+	PreviewTitle string
+	DynamicCover string
+	Cover        string
+}
+
+func NewApiServer() *Api {
+	return &Api{
+		Server: &agent{},
 	}
 }
 
-func (a *agent) GetFromAgent(url string) error {
-	resp, err := http.Get(url)
+func (a *agent) RetrieveFromAgent(endpoint string) ([]byte, error) {
+	resp, err := http.Get(endpoint)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("在请求抖音代理服务器时发生异常: %v", err)
 	}
 
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	// fmt.Println(string(body))
+	body, _ := io.ReadAll(resp.Body)
 
 	err = json.Unmarshal(body, a)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("在解析抖音代理服务器响应时发生异常: %v", err)
 	}
 
-	if a.StatusCode != 0 {
-		return fmt.Errorf("抖音代理服务器响应异常: %d", a.StatusCode)
+	if a.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("抖音代理服务器响应异常, Code: %d", a.StatusCode)
 	}
 
-	return nil
+	return a.Data, nil
 }
 
-func (u *UserInfo) GetPosts(secUserId string) error {
-	var resp agent
-	requestURL := fmt.Sprintf("http://localhost:15000/get_post?sec_user_id=%s", secUserId)
-
-	err := resp.GetFromAgent(requestURL)
-	if err != nil {
-		return err
-	}
-
-	_ = json.Unmarshal([]byte(resp.Data), &u.Posts)
-
-	return nil
-}
-
-func (u *UserInfo) GetProfile(secUserId string) error {
-	var resp agent
+func (a *Api) GetLiveStatus(secUserId string) (bool, error) {
 	requestURL := fmt.Sprintf("http://localhost:15000/get_profile?sec_user_id=%s", secUserId)
 
-	err := resp.GetFromAgent(requestURL)
+	data, err := a.Server.RetrieveFromAgent(requestURL)
 	if err != nil {
-		return err
+		return false, err
 	}
-	_ = json.Unmarshal([]byte(resp.Data), &u.Posts)
+	status := gjson.Get(string(data), "user.live_status").Int()
 
-	return nil
+	return status != 0, nil
+}
+
+func (a *Api) GetLatestAweme(secUserId string) (Post, error) {
+	requestURL := fmt.Sprintf("http://localhost:15000/get_post?sec_user_id=%s", secUserId)
+
+	data, err := a.Server.RetrieveFromAgent(requestURL)
+	if err != nil {
+		return Post{}, err
+	}
+
+	var userPosts []Post
+
+	//fmt.Println(string(data))
+	result := gjson.ParseBytes(data)
+	result.Get("aweme_list").ForEach(func(key, value gjson.Result) bool {
+		userPosts = append(userPosts, Post{
+			SecUid:       value.Get("author.sec_uid").String(),
+			Nickname:     value.Get("author.nickname").String(),
+			AwemeId:      value.Get("aweme_id").String(),
+			CreateTime:   value.Get("create_time").Int(),
+			PreviewTitle: value.Get("preview_title").String(),
+			Desc:         value.Get("desc").String(),
+			Duration:     value.Get("duration").Int(),
+			Cover:        value.Get("video.cover.url_list.0").String(),
+			DynamicCover: value.Get("video.dynamic_cover.url_list.0").String(),
+		})
+		return true
+	})
+
+	sort.Slice(userPosts, func(i, j int) bool {
+		return userPosts[i].CreateTime > userPosts[j].CreateTime
+	})
+
+	//Todo: 判断空响应
+	return userPosts[0], nil
 }
